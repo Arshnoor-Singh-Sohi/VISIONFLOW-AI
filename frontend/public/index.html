@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#3B82F6" />
+    
+    <!-- SEO and Social Media Meta Tags -->
+    <meta name="description" content="VisionFlow AI - Advanced computer vision pipeline with SAM segmentation and OpenAI classification for intelligent image analysis." />
+    <meta name="keywords" content="computer vision, AI, image segmentation, OpenAI, SAM, machine learning" />
+    <meta name="author" content="VisionFlow AI Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://visionflow.ai/" />
+    <meta property="og:title" content="VisionFlow AI - Intelligent Image Analysis" />
+    <meta property="og:description" content="Advanced computer vision pipeline with SAM segmentation and OpenAI classification." />
+    <meta property="og:image" content="%PUBLIC_URL%/social-preview.jpg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://visionflow.ai/" />
+    <meta property="twitter:title" content="VisionFlow AI - Intelligent Image Analysis" />
+    <meta property="twitter:description" content="Advanced computer vision pipeline with SAM segmentation and OpenAI classification." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/social-preview.jpg" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to external services for faster loading -->
+    <link rel="preconnect" href="https://api.openai.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Title -->
+    <title>VisionFlow AI - Intelligent Image Analysis</title>
+    
+    <!-- Loading styles to prevent flash of unstyled content -->
+    <style>
+      /* Loading spinner shown while React loads */
+      .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9fafb;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      .loading-text {
+        margin-top: 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #6b7280;
+        text-align: center;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Hide loading once React mounts */
+      .loaded .loading-container {
+        display: none;
+      }
+      
+      /* Base font family */
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 
+                     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 
+                     'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin: 0;
+        padding: 0;
+      }
+      
+      /* Prevent flash of white background */
+      html {
+        background-color: #f9fafb;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- Fallback for browsers that don't support JavaScript -->
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h2>JavaScript Required</h2>
+        <p>VisionFlow AI requires JavaScript to function properly.</p>
+        <p>Please enable JavaScript in your browser and refresh the page.</p>
+      </div>
+    </noscript>
+    
+    <!-- Loading screen shown while React initializes -->
+    <div id="loading" class="loading-container">
+      <div style="text-align: center;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+          <div style="font-weight: 600; margin-bottom: 4px;">VisionFlow AI</div>
+          <div>Initializing application...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main React mount point -->
+    <div id="root"></div>
+    
+    <!-- Hide loading screen once React mounts -->
+    <script>
+      // Simple script to hide loading screen once React takes over
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add a small delay to ensure React has started mounting
+        setTimeout(function() {
+          const loadingElement = document.getElementById('loading');
+          if (loadingElement) {
+            loadingElement.style.opacity = '0';
+            loadingElement.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(function() {
+              loadingElement.style.display = 'none';
+            }, 300);
+          }
+        }, 100);
+      });
+      
+      // Global error handling for better debugging
+      window.addEventListener('error', function(event) {
+        console.error('Global error:', event.error);
+        
+        // Show a user-friendly error message if React fails to load
+        if (event.error && event.error.message && event.error.message.includes('Loading chunk')) {
+          const loadingElement = document.getElementById('loading');
+          if (loadingElement) {
+            loadingElement.innerHTML = `
+              <div style="text-align: center; padding: 40px;">
+                <h3 style="color: #ef4444; margin-bottom: 16px;">Loading Error</h3>
+                <p style="color: #6b7280; margin-bottom: 20px;">
+                  There was an error loading the application. Please refresh the page.
+                </p>
+                <button onclick="window.location.reload()" 
+                        style="background: #3b82f6; color: white; border: none; 
+                               padding: 12px 24px; border-radius: 6px; cursor: pointer;">
+                  Refresh Page
+                </button>
+              </div>
+            `;
+          }
+        }
+      });
+      
+      // Performance monitoring
+      if ('performance' in window && 'measure' in window.performance) {
+        window.addEventListener('load', function() {
+          // Measure initial page load time
+          setTimeout(function() {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            if (perfData) {
+              console.log('Page Load Time:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms');
+            }
+          }, 0);
+        });
+      }
+    </script>
+  </body>
+</html>

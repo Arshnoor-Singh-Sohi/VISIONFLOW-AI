@@ -1,0 +1,97 @@
+# =============================================================================
+# VisionFlow AI - Python Dependencies
+# =============================================================================
+
+# Core Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+aiopg==1.4.0  # Async PostgreSQL
+
+# Pydantic for data validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Image Processing
+Pillow==10.1.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# Machine Learning
+torch==2.1.0
+torchvision==0.16.0
+scikit-learn==1.3.2
+pandas==2.1.4
+joblib==1.3.2
+
+# OpenAI Integration
+openai==1.3.7
+aiohttp==3.9.1
+aiofiles==23.2.0
+
+# File Processing
+python-magic==0.4.27
+python-magic-bin==0.4.14  # For Windows compatibility
+
+# Redis for caching
+redis==5.0.1
+aioredis==2.0.1
+
+# Background Tasks and Scheduling
+celery==5.3.4
+beat==0.2.6
+
+# Logging and Monitoring
+structlog==23.2.0
+psutil==5.9.6
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3
+requests==2.31.0
+bcrypt==4.1.2
+
+# Development and Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2  # For testing FastAPI
+
+# Environment Management
+python-dotenv==1.0.0
+
+# Image Format Support
+imageio==2.33.0
+imageio-ffmpeg==0.4.9
+
+# Math and Scientific Computing
+scipy==1.11.4
+matplotlib==3.8.2
+
+# Progress Bars and CLI
+tqdm==4.66.1
+click==8.1.7
+
+# JSON and Data Handling
+orjson==3.9.10
+ujson==5.8.0
+
+# Async Utilities
+asyncio-mqtt==0.16.1
+websockets==12.0
+
+# Security
+cryptography==41.0.8
+passlib[bcrypt]==1.7.4
+
+# System Monitoring
+py-cpuinfo==9.0.0
+GPUtil==1.4.0  # For GPU monitoring
+
+# Optional: SAM Model (install separately or via git)
+# segment-anything @ git+https://github.com/facebookresearch/segment-anything.git
