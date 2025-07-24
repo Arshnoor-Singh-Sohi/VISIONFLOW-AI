@@ -1,0 +1,123 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+.env
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Directory tree files
+# directory-tree.md
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# macOS / Windows system files
+.DS_Store
+Thumbs.db
+
+# VS Code config
+.vscode/
+
+# GitHub Actions runtime files
+.github/workflows/*.log
+.github/workflows/*.tmp
+
+# Logs
+*.log
+
+# Node / JS dependencies (if any)
+node_modules/
+
+# Ignore compiled files / executables
+*.exe
+*.dll
+*.out
+*.app
+
+# Ignore model files and large data outputs
+# data/models/
+# data/output/
+
+# Or specific files if you prefer
+# data/models/sam2.1_hiera_base_plus.pt
+# data/output/image1_analysis.json
+
+# YOLO model file
+yolov8m-seg.pt
+
+# Git ignore itself (optional safety)
+!.gitignore
+
+# Ignore specific large files causing issues
+yolov8m-seg.pt
+data/models/sam2.1_hiera_base_plus.pt
+data/output/image1_analysis.json
+
+# Large model files (exceed GitHub 100MB limit)
+data/models/metadata_models/
+data/models/sam2.1_hiera_base_plus.pt
+data/models/custom_food_detection.pt
+data/models/yolo_food_v8.pt
+
+# All model weight files
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+
+# Training outputs
+runs/
+logs/
+data/training/
+
+# Output directories
+data/output/
+output_directory/
+
+# Database files
+data/databases/nutrition/nutrition_expanded.db
+
+# Temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.env
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
