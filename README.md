@@ -1,3 +1,4 @@
+```
 visionflow-ai/
 ├── README.md
 ├── docker-compose.yml
@@ -112,3 +113,4 @@ visionflow-ai/
     ├── DEPLOYMENT.md              # Deployment guide
     ├── DEVELOPMENT.md             # Development guide
     └── ARCHITECTURE.md            # System architecture
+```
