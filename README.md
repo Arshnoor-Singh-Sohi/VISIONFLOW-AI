@@ -60,6 +60,7 @@ visionflow-ai/
 │       │   ├── TrainingDashboard.js # Training progress dashboard
 │       │   ├── Navigation.js      # Navigation component
 │       │   └── LoadingSpinner.js  # Loading component
+|       |   └── SystemMonitoring.js
 │       │
 │       ├── services/
 │       │   ├── api.js             # API service layer
