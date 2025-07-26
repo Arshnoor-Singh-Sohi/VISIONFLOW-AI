@@ -23,11 +23,61 @@ from sqlalchemy import (
     Column, String, Integer, Float, DateTime, Boolean, Text, 
     JSON, ForeignKey, Enum, LargeBinary, Index
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship, Session
-from sqlalchemy.dialects.postgresql import UUID
+# from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
+import sqlalchemy as sa
+from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
+
+class UniversalUUID(TypeDecorator):
+    """
+    Universal UUID type that works with both PostgreSQL and SQLite.
+    
+    This automatically chooses the right UUID implementation:
+    - PostgreSQL: Uses native UUID type for optimal performance
+    - SQLite: Stores UUIDs as strings (36 characters)
+    - Other databases: Falls back to string storage
+    
+    This is like having a universal power adapter that works in any country!
+    """
+    
+    impl = CHAR
+    cache_ok = True
+    
+    def load_dialect_impl(self, dialect):
+        """Choose the right UUID implementation based on the database type."""
+        if dialect.name == 'postgresql':
+            # Use PostgreSQL's native UUID type
+            return dialect.type_descriptor(PostgreSQLUUID(as_uuid=True))
+        else:
+            # For SQLite and other databases, use 36-character strings
+            return dialect.type_descriptor(CHAR(36))
+    
+    def process_bind_param(self, value, dialect):
+        """Convert Python UUID objects to the right format for storage."""
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            # PostgreSQL can handle UUID objects directly
+            return value
+        else:
+            # For SQLite, convert UUID to string format
+            if not isinstance(value, uuid.UUID):
+                return str(value)
+            return str(value)
+    
+    def process_result_value(self, value, dialect):
+        """Convert stored values back to Python UUID objects."""
+        if value is None:
+            return value
+        else:
+            # Always return a proper UUID object regardless of storage format
+            if not isinstance(value, uuid.UUID):
+                return uuid.UUID(value)
+            return value
 
 # =============================================================================
 # BASE MODEL SETUP
@@ -69,7 +119,7 @@ class UUIDMixin:
     - They're harder to guess (better security)
     """
     id = Column(
-        UUID(as_uuid=True),
+        UniversalUUID(),  # New universal version that works everywhere
         primary_key=True,
         default=uuid.uuid4,
         comment="Unique identifier for this record"
@@ -177,7 +227,7 @@ class ImageSegment(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "image_segments"
     
     # Link back to the original image
-    image_id = Column(UUID(as_uuid=True), ForeignKey('images.id'), nullable=False)
+    image_id = Column(UniversalUUID(), ForeignKey('images.id'), nullable=False)
     
     # Segment identification
     segment_index = Column(Integer, nullable=False, comment="Order of this segment in the original image")
@@ -225,8 +275,8 @@ class Classification(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "classifications"
     
     # Links to image and segment
-    image_id = Column(UUID(as_uuid=True), ForeignKey('images.id'), nullable=False)
-    segment_id = Column(UUID(as_uuid=True), ForeignKey('image_segments.id'), nullable=False)
+    image_id = Column(UniversalUUID(), ForeignKey('images.id'), nullable=False)
+    segment_id = Column(UniversalUUID(), ForeignKey('image_segments.id'), nullable=False)
     
     # OpenAI classification results
     primary_label = Column(String(100), nullable=False, comment="Primary classification label")
@@ -274,8 +324,8 @@ class TrainingSample(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "training_samples"
     
     # Source data
-    image_id = Column(UUID(as_uuid=True), ForeignKey('images.id'), nullable=False)
-    segment_id = Column(UUID(as_uuid=True), ForeignKey('image_segments.id'), nullable=True)
+    image_id = Column(UniversalUUID(), ForeignKey('images.id'), nullable=False)
+    segment_id = Column(UniversalUUID(), ForeignKey('image_segments.id'), nullable=True)
     
     # Training labels
     ground_truth_label = Column(String(100), nullable=False, comment="Correct label for training")
@@ -286,7 +336,7 @@ class TrainingSample(Base, UUIDMixin, TimestampMixin):
     
     # Training metadata
     used_in_training = Column(Boolean, default=False, comment="Has this sample been used in training?")
-    training_run_id = Column(UUID(as_uuid=True), comment="ID of training run that used this sample")
+    training_run_id = Column(UniversalUUID(), comment="ID of training run that used this sample")
     
     # Quality metrics
     difficulty_score = Column(Float, comment="How difficult is this sample to classify?")
@@ -385,7 +435,7 @@ class SystemLog(Base, UUIDMixin, TimestampMixin):
     
     # Context information
     user_id = Column(String(100), comment="User associated with this log entry")
-    image_id = Column(UUID(as_uuid=True), comment="Image associated with this log entry")
+    image_id = Column(UniversalUUID(), comment="Image associated with this log entry")
     request_id = Column(String(100), comment="Request ID for tracing")
     
     # System information

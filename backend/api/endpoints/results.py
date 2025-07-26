@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from pydantic import BaseModel
+import enum
 
 from ...database import get_db
 from ...config import get_settings
@@ -90,8 +91,7 @@ class FeedbackRequest(BaseModel):
     confidence: float
     notes: Optional[str] = None
 
-
-class ExportFormat(str):
+class ExportFormat(str, enum.Enum):
     """Supported export formats."""
     JSON = "json"
     CSV = "csv"

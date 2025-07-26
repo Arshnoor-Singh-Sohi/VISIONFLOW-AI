@@ -17,8 +17,14 @@ import mimetypes
 import cv2
 import numpy as np
 from PIL import Image, ImageOps, ExifTags
-from PIL.ExifTags import ORIENTATION
-import magic
+
+# Import magic with graceful fallback for systems where libmagic isn't available
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    MAGIC_AVAILABLE = False
+    magic = None
 
 
 # =============================================================================
@@ -76,15 +82,30 @@ def validate_image_file(file_path: str, max_size_mb: int = 50) -> Dict[str, Any]
             }
         
         # Check MIME type
+        # Check MIME type using multiple detection methods
         mime_type, _ = mimetypes.guess_type(str(file_path))
-        if not mime_type or not mime_type.startswith('image/'):
-            # Fallback to magic for more accurate detection
-            try:
-                mime_type = magic.from_file(str(file_path), mime=True)
-            except Exception:
-                mime_type = 'unknown'
         
-        if not mime_type.startswith('image/'):
+        # If mimetypes didn't detect an image, try magic as fallback (if available)
+        if not mime_type or not mime_type.startswith('image/'):
+            if MAGIC_AVAILABLE:
+                try:
+                    mime_type = magic.from_file(str(file_path), mime=True)
+                except Exception:
+                    # If magic fails, we'll rely on PIL verification later
+                    mime_type = 'application/octet-stream'
+            else:
+                # No magic available, we'll rely on PIL verification later
+                mime_type = 'application/octet-stream'
+        
+        # For unknown MIME types, we'll let PIL try to validate the image
+        # This handles cases where magic isn't available or MIME detection fails
+        if mime_type.startswith('image/'):
+            detected_as_image = True
+        elif mime_type in ('application/octet-stream', 'unknown'):
+            # Unknown type - we'll validate with PIL later
+            detected_as_image = False
+        else:
+            # Definitely not an image
             return {
                 'valid': False,
                 'error': f'Not an image file (detected: {mime_type})',
@@ -102,6 +123,10 @@ def validate_image_file(file_path: str, max_size_mb: int = 50) -> Dict[str, Any]
                     width, height = img.size
                     mode = img.mode
                     format_name = img.format
+
+                    # If we couldn't detect MIME type properly, use PIL's format detection
+                    if not detected_as_image:
+                        mime_type = f'image/{format_name.lower()}' if format_name else 'image/jpeg'
                     
                     # Check minimum dimensions
                     if width < 10 or height < 10:

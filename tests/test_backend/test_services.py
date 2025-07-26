@@ -23,6 +23,7 @@ import json
 from pathlib import Path
 from unittest.mock import Mock, AsyncMock, patch
 from typing import Dict, Any
+from datetime import datetime, timezone
 
 # Test imports
 import sys
@@ -43,19 +44,27 @@ from backend.models.database_models import ImageRecord, ProcessingStatus
 @pytest.fixture
 def mock_settings():
     """Create mock settings for testing."""
-    return Mock(
-        openai_api_key="test-api-key",
-        openai_model="gpt-4-vision-preview",
-        openai_max_tokens=1000,
-        openai_temperature=0.1,
-        sam_service_url="http://localhost:8001",
-        upload_path="./test_data/uploads",
-        segments_path="./test_data/segments",
-        results_path="./test_data/results",
-        models_path="./test_data/models",
-        max_file_size=10485760,
-        log_file="./test_data/logs/test.log"
-    )
+    # return Mock(
+    #     openai_api_key="test-api-key",
+    #     openai_model="gpt-4-vision-preview",
+    #     openai_max_tokens=1000,
+    #     openai_temperature=0.1,
+    #     sam_service_url="http://localhost:8001",
+    #     upload_path="./test_data/uploads",
+    #     segments_path="./test_data/segments",
+    #     results_path="./test_data/results",
+    #     models_path="./test_data/models",
+    #     max_file_size=10485760,
+    #     log_file="./test_data/logs/test.log"
+    # )
+    """Mock settings for testing."""
+    settings = Mock()
+    settings.sam_service_url = "http://localhost:8001"
+    settings.sam_model_type = "vit_h"  # String value, not Mock
+    settings.sam_device = "cpu"         # String value, not Mock
+    settings.openai_api_key = "test-key"
+    settings.openai_model = "gpt-4-vision-preview"
+    return settings
 
 
 @pytest.fixture
@@ -431,7 +440,7 @@ class TestStorageService:
         mock_image_record.height = 100
         mock_image_record.channels = 3
         mock_image_record.mime_type = "image/jpeg"
-        mock_image_record.created_at = "2023-01-01T00:00:00Z"
+        mock_image_record.created_at = datetime(2023, 1, 1, tzinfo=timezone.utc)
         mock_image_record.status = ProcessingStatus.COMPLETED
         mock_image_record.processing_started_at = None
         mock_image_record.processing_completed_at = None
@@ -523,6 +532,7 @@ class TestTrainingService:
             sample = Mock()
             sample.label_source = "openai" if i % 2 == 0 else "human"
             sample.ground_truth_label = f"label_{i % 10}"  # 10 different labels
+            sample.created_at = datetime(2023, 1, 1, tzinfo=timezone.utc)  # Add this line
             mock_samples.append(sample)
         
         with patch('backend.services.training_service.db_manager') as mock_db:

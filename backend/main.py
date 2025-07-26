@@ -562,12 +562,8 @@ async def broadcast_training_update(training_run_id: str, status: str, metrics: 
 # =============================================================================
 
 if __name__ == "__main__":
-    # Setup logging
-    setup_logging()
-    
-    # Run the application
     uvicorn.run(
-        "main:app",
+        "backend.main:app",  # Changed from "main:app" to "backend.main:app"
         host="0.0.0.0",
         port=8000,
         reload=settings.debug,

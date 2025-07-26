@@ -176,6 +176,14 @@ class SAMService:
             logger.info(f"SAM segmentation completed: {result.total_segments_found} segments found")
             return result
             
+        except FileNotFoundError:
+            # Let FileNotFoundError bubble up for tests that expect it
+            self.failed_requests += 1
+            raise
+        except SAMResponseError:
+            # Let SAMResponseError bubble up for tests that expect it
+            self.failed_requests += 1
+            raise
         except Exception as e:
             self.failed_requests += 1
             logger.error(f"SAM segmentation failed for {image_path}: {e}")
@@ -245,7 +253,7 @@ class SAMService:
         
         # Prepare request
         request_data = {
-            'image_filename': Path(image_path).name,
+            'image_filename': image_path,  # Keep full path
             'image_size': len(image_data),
             'image_dimensions': image_info,
             'parameters': {
@@ -273,9 +281,10 @@ class SAMService:
                 
                 form_data = aiohttp.FormData()
                 form_data.add_field('config', json.dumps(request_data['parameters']))
-                form_data.add_field('image', 
-                                  open(request_data['image_filename'], 'rb'),
-                                  filename=request_data['image_filename'])
+                with open(request_data['image_filename'], 'rb') as img_file:
+                    form_data.add_field('image', 
+                                    img_file.read(),
+                                    filename=Path(request_data['image_filename']).name)
                 
                 async with session.post(
                     f"{self.sam_service_url}/segment",

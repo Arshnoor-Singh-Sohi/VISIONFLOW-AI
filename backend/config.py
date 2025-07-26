@@ -12,7 +12,8 @@ every service knows how to behave based on these settings.
 
 import os
 from typing import List, Optional
-from pydantic import BaseSettings, validator, Field
+from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator
 from functools import lru_cache
 
 
@@ -27,6 +28,14 @@ class Settings(BaseSettings):
     # =============================================================================
     # CORE APPLICATION SETTINGS
     # =============================================================================
+    backend_url: str
+    frontend_url: str
+    auto_reload: bool = False
+    domain: str
+    ssl_cert_path: str
+    ssl_key_path: str
+    workers: int = 1  # default if needed
+
     app_name: str = "VisionFlow AI"
     app_version: str = "1.0.0"
     debug: bool = False
@@ -56,9 +65,11 @@ class Settings(BaseSettings):
     # =============================================================================
     # CORS SETTINGS
     # =============================================================================
-    cors_origins: List[str] = ["http://localhost:3000"]
+    # cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: List[str] = Field(default_factory=list)
     
-    @validator('cors_origins', pre=True)
+    @field_validator('cors_origins', mode='before')
+    @classmethod
     def parse_cors_origins(cls, v):
         """Convert comma-separated string to list if needed."""
         if isinstance(v, str):
@@ -71,7 +82,8 @@ class Settings(BaseSettings):
     max_file_size: int = 10 * 1024 * 1024  # 10MB in bytes
     allowed_extensions: List[str] = ["jpg", "jpeg", "png", "webp"]
     
-    @validator('allowed_extensions', pre=True)
+    @field_validator('allowed_extensions', mode='before')
+    @classmethod
     def parse_allowed_extensions(cls, v):
         """Convert comma-separated string to list if needed."""
         if isinstance(v, str):
@@ -86,7 +98,8 @@ class Settings(BaseSettings):
     results_path: str = "./data/results"
     models_path: str = "./data/models"
     
-    @validator('upload_path', 'segments_path', 'results_path', 'models_path')
+    @field_validator('upload_path', 'segments_path', 'results_path', 'models_path')
+    @classmethod
     def ensure_path_exists(cls, v):
         """Automatically create directories if they don't exist."""
         os.makedirs(v, exist_ok=True)
@@ -102,7 +115,7 @@ class Settings(BaseSettings):
     # =============================================================================
     # SAM MODEL CONFIGURATION
     # =============================================================================
-    sam_model_type: str = Field(default="vit_h", regex="^(vit_h|vit_l|vit_b)$")
+    sam_model_type: str = Field(default="vit_h", pattern="^(vit_h|vit_l|vit_b)$")
     sam_device: str = "cpu"
     sam_checkpoint_path: str = "./data/models/sam_vit_h_4b8939.pth"
     
@@ -118,11 +131,12 @@ class Settings(BaseSettings):
     # SCHEDULER CONFIGURATION
     # =============================================================================
     enable_scheduler: bool = True
-    daily_processing_time: str = Field(default="09:00", regex="^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
-    daily_image_source: str = Field(default="folder", regex="^(folder|url|api)$")
+    daily_processing_time: str = Field(default="09:00", pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    daily_image_source: str = Field(default="folder", pattern="^(folder|url|api)$")
     daily_image_folder: str = "./data/daily_inputs"
     
-    @validator('daily_image_folder')
+    @field_validator('daily_image_folder')
+    @classmethod
     def ensure_daily_folder_exists(cls, v):
         """Create daily images folder if it doesn't exist."""
         os.makedirs(v, exist_ok=True)
@@ -131,12 +145,13 @@ class Settings(BaseSettings):
     # =============================================================================
     # LOGGING CONFIGURATION
     # =============================================================================
-    log_level: str = Field(default="INFO", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
+    log_level: str = Field(default="INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
     log_file: str = "./data/logs/visionflow.log"
     log_max_size: int = Field(default=100, gt=0)  # MB
     log_backup_count: int = Field(default=5, gt=0)
     
-    @validator('log_file')
+    @field_validator('log_file')
+    @classmethod
     def ensure_log_dir_exists(cls, v):
         """Create log directory if it doesn't exist."""
         log_dir = os.path.dirname(v)
@@ -174,7 +189,7 @@ class Settings(BaseSettings):
         case_sensitive = False
         
         # Example values for documentation
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "app_name": "VisionFlow AI",
                 "database_url": "postgresql://user:pass@localhost:5432/visionflow",

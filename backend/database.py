@@ -20,7 +20,7 @@ import logging
 from contextlib import contextmanager
 from typing import Generator, Optional
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -208,7 +208,7 @@ class DatabaseManager:
         try:
             with self.get_session_context() as session:
                 # Try a simple query
-                result = session.execute("SELECT 1 as health_check").fetchone()
+                result = session.execute(text("SELECT 1 as health_check")).fetchone()
                 
                 # Get some basic stats
                 from .models.database_models import get_table_counts

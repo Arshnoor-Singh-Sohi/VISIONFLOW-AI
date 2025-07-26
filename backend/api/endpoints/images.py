@@ -189,11 +189,19 @@ async def upload_image(
         logger.info(f"Image uploaded successfully: {image_record.id} ({image.filename})")
         
         # Start background processing
-        background_tasks.add_task(
-            process_image_pipeline,
-            str(image_record.id),
-            str(file_path),
-            processing_config
+        # background_tasks.add_task(
+        #     process_image_pipeline,
+        #     str(image_record.id),
+        #     str(file_path),
+        #     processing_config
+        # )
+
+        asyncio.create_task(
+            process_image_pipeline(
+                str(image_record.id),
+                str(file_path),
+                processing_config
+            )
         )
         
         return ImageUploadResponse(
@@ -247,11 +255,12 @@ async def reprocess_image(
     db.commit()
     
     # Start background processing
-    background_tasks.add_task(
-        process_image_pipeline,
-        image_id,
-        image_record.file_path,
-        config
+    asyncio.create_task(
+        process_image_pipeline(
+            str(image_record.id),
+            str(file_path),
+            processing_config
+        )
     )
     
     logger.info(f"Reprocessing initiated for image: {image_id}")
@@ -566,6 +575,7 @@ async def process_image_pipeline(
     file_path: str,
     config: ProcessingConfig
 ):
+    logger.info(f"BACKGROUND PIPELINE STARTED for image: {image_id}")
     """
     Main image processing pipeline that runs in the background.
     

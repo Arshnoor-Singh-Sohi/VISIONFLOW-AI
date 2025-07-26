@@ -560,13 +560,14 @@ class TestSegmentPostProcessing:
         
         # Filter out segments smaller than 1000 pixels
         filtered = filter_segments_by_area(segments, min_area=1000)
-        assert len(filtered) == 2  # Should keep medium and large
+        assert len(filtered) == 3  # Should keep segments with areas: 2500, 10000, 40000
         assert all(seg.area >= 1000 for seg in filtered)
         
         # Filter with both min and max area
         filtered_range = filter_segments_by_area(segments, min_area=1000, max_area=20000)
-        assert len(filtered_range) == 1  # Should keep only large (10000)
-        assert filtered_range[0].area == 10000
+        assert len(filtered_range) == 2  # Should keep medium (2500) and large (10000)
+        assert filtered_range[0].area == 2500
+        assert filtered_range[1].area == 10000
     
     def test_merge_overlapping_segments(self):
         """Test merging of overlapping segments."""

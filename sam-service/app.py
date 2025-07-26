@@ -48,7 +48,7 @@ CLEANUP_INTERVAL = int(os.getenv('CLEANUP_INTERVAL', '3600'))  # Cleanup every h
 TEMP_DIR = Path(os.getenv('TEMP_DIR', '/app/temp'))
 
 # Create necessary directories
-TEMP_DIR.mkdir(exist_ok=True)
+TEMP_DIR.mkdir(parents=True, exist_ok=True)
 Path('/app/segments').mkdir(exist_ok=True)
 
 # Setup logging
